@@ -40,7 +40,7 @@ paths:
                           type: string
                         name:
                           type: string
-                          example: file_name
+                          x-faker: system.fileName
                         path:
                           type: string
                         last_modified:

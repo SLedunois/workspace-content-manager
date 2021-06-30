@@ -69,6 +69,40 @@ class WorkspaceContentsManager(ContentsManager):
         logging.error("path = " + path)
         return False
 
+    """
+    # Getting base content
+    [Into get manager method]
+        Path =
+        Content = 1
+        Content is not True!
+        Type = None
+        Format = None
+    
+    # Opening file
+    # This call seems to be ok. Path = file name, Type = file, Format = text
+    [Into get manager method]
+        Path = /ameliorated_sleek.mmf
+        Content = 1
+        Content is not True!
+        Type = file
+        Format = text
+        
+    # Jupyter refresh the base content
+    [Into get manager method]
+        Path =
+        Content = 1
+        Content is not True!
+        Type = None
+        Format = None
+        
+    # Jupyter tries to open file as a directory when base content describe it as file. WTF ?
+    [Into get manager method]
+        Path = /ameliorated_sleek.mmf
+        Content = True
+        Type = directory
+        Format = None
+    """
+
     def get(self, path, content=True, type='directory', format=None):
         """Get a file or directory model."""
         logging.error("Into get manager method")
