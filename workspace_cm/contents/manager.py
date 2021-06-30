@@ -1,9 +1,17 @@
+import logging
+import dateutil
+import os
+import json
 from notebook.services.contents.manager import ContentsManager
+from .workspace import Workspace
+
 
 class WorkspaceContentsManager(ContentsManager):
 
     def __init__(self, *args, **kwargs):
         super(WorkspaceContentsManager, self).__init__(*args, **kwargs)
+        print(os.environ["JUPYTERHUB_USER"])
+        self.cm = Workspace()
 
     def dir_exists(self, path):
         """Does a directory exist at the given path?
@@ -19,11 +27,9 @@ class WorkspaceContentsManager(ContentsManager):
             Whether the path does indeed exist.
 
         """
-
-        path = path.strip('/')
-        girder_path = self._get_girder_path(path)
-
-        return self._resource_exists(girder_path, ['folder', 'item', 'user'])
+        logging.error("dir_exists")
+        logging.error("path = " + path)
+        return False
 
     def is_hidden(self, path):
         """Is path a hidden directory or file?
@@ -38,7 +44,7 @@ class WorkspaceContentsManager(ContentsManager):
             Whether the path is hidden.
 
         """
-
+        logging.error("is_hidden")
         return False
 
     def file_exists(self, path=''):
@@ -55,13 +61,15 @@ class WorkspaceContentsManager(ContentsManager):
             Whether the file exists.
 
         """
-
+        logging.error("file_exists")
+        logging.error("path = " + path)
         return False
 
-    def get(self, path, content=True, type=None, format=None):
+    def get(self, path, content=True, type='directory', format=None):
         """Get a file or directory model."""
-
-        return None
+        logging.error("get")
+        logging.error("Path = " + path)
+        return self.cm.get(type, path)
 
     def save(self, model, path):
         """
@@ -70,10 +78,12 @@ class WorkspaceContentsManager(ContentsManager):
         should call self.run_pre_save_hook(model=model, path=path) prior to
         writing any data.
         """
+        logging.error("save")
         return None
 
     def delete_file(self, path, allow_non_empty=False):
         """Delete the file or directory at path."""
+        logging.error("delete_file")
         return None
 
     def rename_file(self, old_path, new_path):
@@ -84,12 +94,15 @@ class WorkspaceContentsManager(ContentsManager):
         Its not clear that this operation can be performed using rename, it doesn't
         seem to be exposed through jlab.
         """
+        logging.error("rename_file")
         return None
 
     def delete(self, path):
         """Delete a file/directory and any associated checkpoints."""
+        logging.error("delete")
         return None
 
     def rename(self, old_path, new_path):
         """Rename a file and any checkpoints associated with that file."""
+        logging.error("rename")
         return None

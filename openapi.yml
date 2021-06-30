@@ -1,0 +1,84 @@
+openapi: 3.0.0
+info:
+  title: Directory
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /directories:
+    parameters: []
+    get:
+      summary: list directories
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Directory
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  path:
+                    type: string
+                  last_modified:
+                    type: string
+                  created:
+                    type: integer
+                  content:
+                    type: array
+                    items:
+                      title: File
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                          x-faker: system.fileName
+                        path:
+                          type: string
+                        last_modified:
+                          type: string
+                        created:
+                          type: string
+                        content:
+                          type: string
+                        format:
+                          type: string
+                        mimetype:
+                          type: string
+                          x-faker: system.mimeType
+                        writable:
+                          type: string
+                  format:
+                    type: string
+                  mimetype:
+                    type: string
+                  writable:
+                    type: boolean
+                  type:
+                    type: string
+              examples: {}
+      operationId: get-directories-path
+      description: ''
+  '/directories/files':
+    get:
+      summary: Get given file content
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                x-faker: lorem.text
+              examples: {}
+      operationId: get-directories-files-name
+components:
+  schemas: {}
