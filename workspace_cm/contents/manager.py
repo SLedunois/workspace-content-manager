@@ -2,16 +2,20 @@ import logging
 import dateutil
 import os
 import json
+
 from notebook.services.contents.manager import ContentsManager
+from tornado import web
+
 from .workspace import Workspace
+from .checkpoints import WorkspaceCheckpoints
 
 
 class WorkspaceContentsManager(ContentsManager):
 
     def __init__(self, *args, **kwargs):
         super(WorkspaceContentsManager, self).__init__(*args, **kwargs)
-        print(os.environ["JUPYTERHUB_USER"])
         self.cm = Workspace()
+        self.checkpoints_class = WorkspaceCheckpoints
 
     def dir_exists(self, path):
         """Does a directory exist at the given path?
@@ -67,9 +71,20 @@ class WorkspaceContentsManager(ContentsManager):
 
     def get(self, path, content=True, type='directory', format=None):
         """Get a file or directory model."""
-        logging.error("get")
-        logging.error("Path = " + path)
-        return self.cm.get(type, path)
+        logging.error("Into get manager method")
+        logging.error("Path = {}".format(path))
+        logging.error("Content = {}".format(content))
+        if content is not True:
+            logging.error("Content is not True!")
+        logging.error("Type = {}".format(type))
+        logging.error("Format = {}".format(format))
+
+        if type == 'file':
+            return self.cm.getFile(path)
+        elif type == 'notebook' or (type is None and path.endswith('.ipynb')):
+            return self.cm.getNotebook(path)
+        else:
+            return self.cm.getDirectory(path)
 
     def save(self, model, path):
         """

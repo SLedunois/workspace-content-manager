@@ -25,7 +25,8 @@ class Workspace:
             'mimetype': None,
             'writable': True,
             'created': dateutil.parser.parse(date),
-            'last_modified': dateutil.parser.parse(date)
+            'last_modified': dateutil.parser.parse(date),
+            'type': None
         }
 
     def _file_model(self, path, file, content=True, format=None):
@@ -35,12 +36,11 @@ class Workspace:
         model = self._base_model(path, file)
         model['type'] = 'file'
         model['mimetype'] = file['mimetype']
-        model['path'] = '/' + path + '/' + file['name']
+        model['path'] = '/' + file['name']
         if content:
             model['content'] = file['content']
 
         return model
-
 
     def _dir_model(self, path, resource, content=True, format=None):
         """Build a model for a directory
@@ -58,7 +58,8 @@ class Workspace:
 
         return model
 
-    def _txt_file(self, path):
+    @staticmethod
+    def _txt_file(path):
         date = 'Sat Oct 11 17:13:46 UTC 2003'
         return {
             'content': 'Hello world',
@@ -71,7 +72,7 @@ class Workspace:
             'writable': True
         }
 
-    def get(self, type='directory', path=''):
+    def getDirectory(self, path=''):
         """
         Get from remote workspace
 
@@ -83,16 +84,41 @@ class Workspace:
         path: string
             Resource path
         """
-        if type == 'file':
-            url = 'http://127.0.0.1:4010/directories/files'
-            r = requests.get(url)
-            result = self._file_model(path, self._txt_file(path), False)
-            result['format'] = 'text'
-            result['content'] = r.text
-            return result
-        else:
-            url = 'http://127.0.0.1:4010/directories'
-            r = requests.get(url)
-            result = self._dir_model(path, r.json())
-            print(result)
-            return result
+        url = 'http://127.0.0.1:4010/directories'
+        r = requests.get(url)
+        result = self._dir_model(path, r.json())
+        return result
+
+    def getFile(self, path=''):
+        """
+        Get from remote workspace
+
+        Parameters
+        ----------
+        type: string
+            Resource type. Can be directory of file
+
+        path: string
+            Resource path
+        """
+        url = 'http://127.0.0.1:4010/directories/files'
+        r = requests.get(url)
+        result = self._file_model(path, self._txt_file(path), False)
+        result['format'] = 'text'
+        result['content'] = r.text
+        return result
+
+
+    def getNotebook(self, path=''):
+        """
+        Get from remote workspace
+
+        Parameters
+        ----------
+        type: string
+            Resource type. Can be directory of file
+
+        path: string
+            Resource path
+        """
+        return None

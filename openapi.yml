@@ -23,6 +23,7 @@ paths:
                     type: string
                   name:
                     type: string
+                    example: folder_name
                   path:
                     type: string
                   last_modified:
@@ -39,7 +40,7 @@ paths:
                           type: string
                         name:
                           type: string
-                          x-faker: system.fileName
+                          example: file_name
                         path:
                           type: string
                         last_modified:
