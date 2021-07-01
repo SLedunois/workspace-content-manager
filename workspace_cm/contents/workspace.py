@@ -1,10 +1,11 @@
 import requests
 import json
 import dateutil
-
+import logging
 
 class Workspace:
     def __init__(self):
+        self.server = 'http://127.0.0.1:3000'
         pass
 
     def _base_model(self, path, resource):
@@ -72,7 +73,7 @@ class Workspace:
             'writable': True
         }
 
-    def getDirectory(self, path=''):
+    def get_directory(self, path=''):
         """
         Get from remote workspace
 
@@ -84,32 +85,34 @@ class Workspace:
         path: string
             Resource path
         """
-        url = 'http://127.0.0.1:4010/directories'
+        url = '{}/directories?path={}'.format(self.server, path)
         r = requests.get(url)
         result = self._dir_model(path, r.json())
         return result
 
-    def getFile(self, path=''):
+    def get_file(self, path='', content=True):
         """
         Get from remote workspace
 
         Parameters
         ----------
-        type: string
-            Resource type. Can be directory of file
-
         path: string
             Resource path
+
+        content: bool
+            item needs content
         """
-        url = 'http://127.0.0.1:4010/directories/files'
+        url = '{}/directories/files?path={}'.format(self.server, path)
         r = requests.get(url)
-        result = self._file_model(path, self._txt_file(path), False)
-        result['format'] = 'text'
-        result['content'] = r.text
-        return result
+        item = r.json()
+        if content is False or content is 0:
+            item['content'] = None
+            item['format'] = None
 
+        logging.error('Before returning get file value. Need content ? {} : {}'.format(content, json.dumps(item)))
+        return item
 
-    def getNotebook(self, path=''):
+    def get_notebook(self, path=''):
         """
         Get from remote workspace
 
@@ -122,3 +125,34 @@ class Workspace:
             Resource path
         """
         return None
+
+    def file_exists(self, path):
+        url = '{}/files/exists?path={}'.format(self.server, path)
+        r = requests.get(url)
+        if r.status_code == 404:
+            return False
+        elif r.status_code == 409:
+            return True
+
+        logging.error('Response status neither `Not found` nor `Conflict`: {}'.format(r.status_code))
+        return True
+
+    def directory_exists(self, path):
+        url = '{}/directories/exists?path={}'.format(self.server, path)
+        r = requests.get(url)
+        if r.status_code == 404:
+            return False
+        elif r.status_code == 409:
+            return True
+
+        logging.error('Response status neither `Not found` nor `Conflict`: {}'.format(r.status_code))
+        return True
+
+    def save(self, path, model):
+        url = '{}/files?path={}'.format(self.server, path)
+        r = requests.post(url, json=model)
+        item = r.json()
+        item['content'] = None
+        item['format'] = None
+        return item
+

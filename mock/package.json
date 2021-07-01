@@ -1,0 +1,25 @@
+{
+  "name": "workspace-content-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mock.js",
+  "scripts": {
+    "start": "node mock.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://SLedunois:ycu82kusl@github.com/SLedunois/workspace-content-manager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SLedunois/workspace-content-manager/issues"
+  },
+  "homepage": "https://github.com/SLedunois/workspace-content-manager#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  }
+}

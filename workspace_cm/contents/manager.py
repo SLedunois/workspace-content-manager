@@ -33,7 +33,7 @@ class WorkspaceContentsManager(ContentsManager):
         """
         logging.error("dir_exists")
         logging.error("path = " + path)
-        return False
+        return self.cm.directory_exists(path)
 
     def is_hidden(self, path):
         """Is path a hidden directory or file?
@@ -67,7 +67,7 @@ class WorkspaceContentsManager(ContentsManager):
         """
         logging.error("file_exists")
         logging.error("path = " + path)
-        return False
+        return self.cm.file_exists(path)
 
     """
     # Getting base content
@@ -108,17 +108,23 @@ class WorkspaceContentsManager(ContentsManager):
         logging.error("Into get manager method")
         logging.error("Path = {}".format(path))
         logging.error("Content = {}".format(content))
-        if content is not True:
+        if content is not True or content is not 1:
             logging.error("Content is not True!")
         logging.error("Type = {}".format(type))
         logging.error("Format = {}".format(format))
 
         if type == 'file':
-            return self.cm.getFile(path)
+            return self.cm.get_file(path)
         elif type == 'notebook' or (type is None and path.endswith('.ipynb')):
-            return self.cm.getNotebook(path)
+            return self.cm.get_notebook(path)
         else:
-            return self.cm.getDirectory(path)
+            # if self.cm.directoryExists(path) is not True:
+            #     raise web.HTTPError(404, '{} directory does not exists'.format(path))
+            if self.cm.file_exists(path):
+                logging.error('The {} file exists !'.format(path))
+                return self.cm.get_file(path, content)
+
+            return self.cm.get_directory(path)
 
     def save(self, model, path):
         """
@@ -127,8 +133,10 @@ class WorkspaceContentsManager(ContentsManager):
         should call self.run_pre_save_hook(model=model, path=path) prior to
         writing any data.
         """
-        logging.error("save")
-        return None
+        logging.error("Into save method")
+        logging.error("Model = {}".format(model))
+        logging.error("Path = {}".format(path))
+        return self.cm.save(path, model)
 
     def delete_file(self, path, allow_non_empty=False):
         """Delete the file or directory at path."""
