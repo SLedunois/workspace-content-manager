@@ -1,5 +1,6 @@
 import logging
 import requests
+import json
 from notebook.services.contents.checkpoints import Checkpoints, GenericCheckpointsMixin
 
 
@@ -9,6 +10,16 @@ class WorkspaceCheckpoints(GenericCheckpointsMixin, Checkpoints):
     def create_file_checkpoint(self, content, format, path):
         """ -> checkpoint model"""
         logging.error("Create file checkpoint for path {}".format(path))
+        logging.error("Content = {}".format(content))
+        logging.error("Format = {}".format(format))
+        body = {
+            'content': content
+        }
+        url = 'http://127.0.0.1:3000/files/checkpoints?path={}'.format(path)
+        r = requests.post(url, json=body)
+        cp = r.json()
+        logging.error('Checkpoint created: {}'.format(json.dumps(cp)))
+        return cp
 
     def create_notebook_checkpoint(self, nb, path):
         """ -> checkpoint model"""

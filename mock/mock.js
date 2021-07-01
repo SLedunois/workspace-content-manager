@@ -45,10 +45,24 @@ app.get('/files/exists', (req, res) => {
 
 app.post('/files', (req, res) => {
     const body = req.body;
-    const path = req.query.path;
+    const path = req.query.path.replace('/', '');
     console.info(`Creating file for path ${path} with body ${JSON.stringify(body)}`);
-    res.json(directories.content.put(path, body))
+    res.json(directories.content.create(path, body))
 });
+
+app.put('/files', (req, res) => {
+    const body = req.body;
+    const path = req.query.path;
+    console.info(`Updating file for path ${path} with body ${JSON.stringify(body)}`);
+    res.json(directories.content.put(path, body));
+})
+
+app.post('/files/checkpoints', (req, res) => {
+    const content = req.body.content;
+    const path = req.query.path;
+    console.log(`Creating checkpoint for path ${path} with content ${content}`);
+    res.json(directories.content.putCheckpoint(path, content));
+})
 
 app.listen(port, () => {
     console.info(`Mocking server listening at http://localhost:${port}`);

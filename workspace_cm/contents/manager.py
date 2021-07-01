@@ -114,9 +114,9 @@ class WorkspaceContentsManager(ContentsManager):
         logging.error("Format = {}".format(format))
 
         if type == 'file':
-            return self.cm.get_file(path)
+            return self.cm.get_file(path, content)
         elif type == 'notebook' or (type is None and path.endswith('.ipynb')):
-            return self.cm.get_notebook(path)
+            return self.cm.get_notebook(path, content)
         else:
             # if self.cm.directoryExists(path) is not True:
             #     raise web.HTTPError(404, '{} directory does not exists'.format(path))

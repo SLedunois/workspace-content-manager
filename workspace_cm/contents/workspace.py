@@ -112,7 +112,7 @@ class Workspace:
         logging.error('Before returning get file value. Need content ? {} : {}'.format(content, json.dumps(item)))
         return item
 
-    def get_notebook(self, path=''):
+    def get_notebook(self, path='', content=True):
         """
         Get from remote workspace
 
@@ -124,7 +124,7 @@ class Workspace:
         path: string
             Resource path
         """
-        return None
+        return self.get_file(path, content)
 
     def file_exists(self, path):
         url = '{}/files/exists?path={}'.format(self.server, path)
@@ -150,7 +150,11 @@ class Workspace:
 
     def save(self, path, model):
         url = '{}/files?path={}'.format(self.server, path)
-        r = requests.post(url, json=model)
+        r = None
+        if self.file_exists(path):
+            r = requests.put(url, json=model)
+        else:
+            r = requests.post(url, json=model)
         item = r.json()
         item['content'] = None
         item['format'] = None
