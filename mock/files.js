@@ -1,9 +1,11 @@
+const date = date;
+
 const data = {
     id: 'fa39326b-d215-4584-810c-346e3274ccd6',
     name: 'lorem.txt',
     path: '/lorem.txt',
-    last_modified: 'Sat Oct 11 17:13:46 UTC 2003',
-    created: 'Sat Oct 11 17:13:46 UTC 2003',
+    last_modified: date,
+    created: date,
     content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse faucibus mauris nulla, at varius odio tempor in. Mauris nibh urna, euismod eget ante sed, consectetur accumsan elit. Vivamus scelerisque ultrices nulla, a sodales urna scelerisque in. Curabitur porttitor sodales congue. Quisque convallis tempus suscipit. Cras facilisis nisi non accumsan egestas. Donec blandit augue a ligula fermentum cursus.',
     format: 'text',
     mimetype: 'text/plain',
@@ -15,7 +17,7 @@ const data = {
 const checkpoints = [
     {
         id: 'f04a4273-965a-4140-a339-c09b95aa489f',
-        last_modified: 'Sat Oct 11 17:13:46 UTC 2003'
+        last_modified: date
     },
     {
         id: '85d21e60-0e33-4e34-a964-7cb8630c197c',
@@ -58,8 +60,8 @@ class Files {
         model.id = uuidv4();
         model.name = path;
         model.path = `/${path}`;
-        model.last_modified = 'Sat Oct 11 17:13:46 UTC 2003';
-        model.created = 'Sat Oct 11 17:13:46 UTC 2003';
+        model.last_modified = date;
+        model.created = date;
         model.writable = true;
 
         switch (type) {
