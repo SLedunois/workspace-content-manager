@@ -31,24 +31,24 @@ class WorkspaceContentsManager(ContentsManager):
             Whether the path does indeed exist.
 
         """
-        logging.error("dir_exists")
-        logging.error("path = " + path)
-        return self.cm.directory_exists(path)
+        logging.error("Looking if directory {} exists ?".format(path))
+        exists = self.cm.directory_exists(path)
+        logging.error("Directory {} exists ? {}".format(path, exists))
+        return exists
 
     def is_hidden(self, path):
         """Is path a hidden directory or file?
         Parameters
         ----------
         path : string
-            The path to check. This is an API path (`/` separated,
-            relative to root dir).
+            The path to check. This is an API path (`/` separated, relative to root dir).
         Returns
         -------
         hidden : bool
             Whether the path is hidden.
 
         """
-        logging.error("is_hidden")
+        logging.error("Looking if {} is hidden".format(path))
         return False
 
     def file_exists(self, path=''):
@@ -65,8 +65,7 @@ class WorkspaceContentsManager(ContentsManager):
             Whether the file exists.
 
         """
-        logging.error("file_exists")
-        logging.error("path = " + path)
+        logging.error("Checking if {} file exist".format(path))
         return self.cm.file_exists(path)
 
     """
@@ -113,18 +112,40 @@ class WorkspaceContentsManager(ContentsManager):
         logging.error("Type = {}".format(type))
         logging.error("Format = {}".format(format))
 
-        if type == 'file':
+        if type is 'file':
             return self.cm.get_file(path, content)
-        elif type == 'notebook' or (type is None and path.endswith('.ipynb')):
-            return self.cm.get_notebook(path, content)
-        else:
-            # if self.cm.directoryExists(path) is not True:
-            #     raise web.HTTPError(404, '{} directory does not exists'.format(path))
-            if self.cm.file_exists(path):
-                logging.error('The {} file exists !'.format(path))
-                return self.cm.get_file(path, content)
 
+        if type is 'notebook':
+            return self.cm.get_notebook(path, content)
+
+        if type is 'directory':
             return self.cm.get_directory(path)
+
+        # In this case. Type is none. First check the type
+        types = ['directory', 'file', 'notebook']
+        logging.error("Type is None. Checking type in remote")
+        for type in types:
+            logging.error("Checking type {} for path {}".format(type, path))
+            if self.cm.is_type(path, type):
+                logging.error("Path {} is of type {}".format(path, type))
+                return self.get(path, content, type, format)
+
+        raise web.HTTPError(404, '{} does not exists in any types'.format(path))
+
+        # if type == 'file':
+        #     return self.cm.get_file(path, content)
+        # elif type == 'notebook' or (type is None and path.endswith('.ipynb')):
+        #     return self.cm.get_notebook(path, content)
+        # else:
+        #     # if self.cm.directoryExists(path) is not True:
+        #     #     raise web.HTTPError(404, '{} directory does not exists'.format(path))
+        #     if self.cm.file_exists(path):
+        #         logging.error('The {} file exists !'.format(path))
+        #         return self.cm.get_file(path, content)
+        #
+        #     if self.cm.directory_exists(path):
+        #         logging.error("Finally, it's a directory")
+        #         return self.cm.get_directory(path)
 
     def save(self, model, path):
         """
@@ -151,8 +172,8 @@ class WorkspaceContentsManager(ContentsManager):
         Its not clear that this operation can be performed using rename, it doesn't
         seem to be exposed through jlab.
         """
-        logging.error("rename_file")
-        return None
+        logging.error("Trying to rename file from path {} to {}".format(old_path, new_path))
+        return self.cm.rename(old_path, new_path)
 
     def delete(self, path):
         """Delete a file/directory and any associated checkpoints."""
@@ -161,5 +182,8 @@ class WorkspaceContentsManager(ContentsManager):
 
     def rename(self, old_path, new_path):
         """Rename a file and any checkpoints associated with that file."""
-        logging.error("rename")
-        return None
+        logging.error("Trying to rename from {} to {}".format(old_path, new_path))
+        if self.cm.is_type(old_path, 'file'):
+            return self.rename_file(old_path, new_path)
+
+        return self.cm.rename(old_path, new_path)

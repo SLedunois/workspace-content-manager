@@ -9,8 +9,16 @@ const directories = new Directories(); 7
 app.use(bodyParser.json());
 
 app.get("/directories", (req, res) => {
-    console.log(`Looking for directory content`);
-    res.json(directories.data);
+    const path = req.query.path;
+    console.log(`Looking for directory ${path} content`);
+    if (path.trim() === '') {
+        res.json(directories.data);
+    } else if (directories.content.exists(path)) {
+        res.json(directories.content.file(path));
+    } else {
+        console.log(`Directory content for path ${path} not found`);
+        res.status(404).end();
+    }
 });
 
 app.get('/directories/files', (req, res) => {
@@ -55,6 +63,14 @@ app.put('/files', (req, res) => {
     const path = req.query.path;
     console.info(`Updating file for path ${path} with body ${JSON.stringify(body)}`);
     res.json(directories.content.put(path, body));
+});
+
+app.put('/files/rename', (req, res) => {
+    let oldPath = req.query.old_path;
+    let newPath = req.query.new_path;
+    if (!oldPath.startsWith('/')) oldPath = `/${oldPath}`
+    console.log(`Renaming ${oldPath} to ${newPath}`);
+    res.json(directories.content.rename(oldPath, newPath));
 })
 
 app.post('/files/checkpoints', (req, res) => {
@@ -62,6 +78,30 @@ app.post('/files/checkpoints', (req, res) => {
     const path = req.query.path;
     console.log(`Creating checkpoint for path ${path} with content ${content}`);
     res.json(directories.content.putCheckpoint(path, content));
+});
+
+app.post('/directories', (req, res) => {
+    const path = req.query.path;
+    console.log(`Creating folder for path ${path}`);
+    res.json(directories.create(path));
+})
+
+app.get('/type', (req, res) => {
+    let path = req.query.path;
+    const type = req.query.type;
+    if (path.trim() === '' && type === 'directory') {
+        res.status(200).end();
+        return;
+    }
+
+    if (!path.startsWith('/')) {
+        path = `/${path}`
+    }
+
+    console.log(`Checking is path ${path} is type of ${type}`)
+    const isType = directories.content.isType(path, type);
+    console.log(`${path} is type of ${type} ? ${isType}`)
+    res.status(isType ? 200 : 400).end();
 })
 
 app.listen(port, () => {

@@ -57,6 +57,14 @@ class Files {
         return path in this.map;
     }
 
+    isType(path, type) {
+        if (!this.exists(path)) {
+            return false;
+        }
+
+        return this.map[path].type === type;
+    }
+
     create(path, model) {
         const { type } = model;
         model.id = uuidv4();
@@ -87,7 +95,6 @@ class Files {
     }
 
     put(path, model) {
-        const { type } = model;
         this.map[path].content = model.content;
         return this.map[path];
     }
@@ -101,6 +108,22 @@ class Files {
 
         this.versions[path].push(checkpoint);
         return checkpoint;
+    }
+
+    putDirectory(path, directory) {
+        this.map[path] = directory;
+        this.files.push(directory);
+        console.log(`${path} put in files`);
+    }
+
+    rename(oldPath, newPath) {
+        const item = this.map[oldPath];
+        item.name = newPath;
+        item.path = `/${newPath}`;
+        this.map[item.path] = item;
+        delete this.map[oldPath];
+        console.log(item)
+        return item;
     }
 }
 

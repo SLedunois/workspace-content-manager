@@ -8,57 +8,6 @@ class Workspace:
         self.server = 'http://127.0.0.1:3000'
         pass
 
-    def _base_model(self, path, resource):
-        """Build the common base of a contents model
-        Parameters
-        ----------
-        path: string
-            The path to the resource
-        resource: json
-            The file or folder model
-        """
-        date = 'Sat Oct 11 17:13:46 UTC 2003'
-        return {
-            'name': resource['name'],
-            'path': path,
-            'content': None,
-            'format': None,
-            'mimetype': None,
-            'writable': True,
-            'created': dateutil.parser.parse(date),
-            'last_modified': dateutil.parser.parse(date),
-            'type': None
-        }
-
-    def _file_model(self, path, file, content=True, format=None):
-        """Build a model for a file
-        if content is requested, include the file contents
-        """
-        model = self._base_model(path, file)
-        model['type'] = 'file'
-        model['mimetype'] = file['mimetype']
-        model['path'] = '/' + file['name']
-        if content:
-            model['content'] = file['content']
-
-        return model
-
-    def _dir_model(self, path, resource, content=True, format=None):
-        """Build a model for a directory
-        if content is requested, will include a listing of the directory
-        """
-        model = self._base_model(path, resource)
-        model['type'] = 'directory'
-        if content:
-            model['content'] = contents = []
-            for content in resource['content']:
-                contents.append(self._file_model(path, content, False))
-            model['content'] = contents
-
-        model['format'] = 'json'
-
-        return model
-
     @staticmethod
     def _txt_file(path):
         date = 'Sat Oct 11 17:13:46 UTC 2003'
@@ -79,16 +28,12 @@ class Workspace:
 
         Parameters
         ----------
-        type: string
-            Resource type. Can be directory of file
-
         path: string
             Resource path
         """
         url = '{}/directories?path={}'.format(self.server, path)
         r = requests.get(url)
-        result = self._dir_model(path, r.json())
-        return result
+        return r.json()
 
     def get_file(self, path='', content=True):
         """
@@ -127,6 +72,14 @@ class Workspace:
         return self.get_file(path, content)
 
     def file_exists(self, path):
+        """
+        Check if file exists. It returns True if file exists, otherwise returns False
+
+        Parameters
+        ----------
+        path: string
+            Path file to check
+        """
         url = '{}/files/exists?path={}'.format(self.server, path)
         r = requests.get(url)
         if r.status_code == 404:
@@ -138,6 +91,14 @@ class Workspace:
         return True
 
     def directory_exists(self, path):
+        """
+        Check if directory exists. If exists it returns True, otherwise it returns False
+
+        Parameters
+        ----------
+        path: string
+            Path folder to check.
+        """
         url = '{}/directories/exists?path={}'.format(self.server, path)
         r = requests.get(url)
         if r.status_code == 404:
@@ -149,6 +110,54 @@ class Workspace:
         return True
 
     def save(self, path, model):
+        """
+        Save item. Based on model type, it save a folder or an item. It returns saved model
+
+        Parameters
+        ----------
+        path: string
+            Object path to save
+
+        model: json
+            New model value to save
+        """
+        logging.error('Into workspace save method for path {} and model {}'.format(path, model))
+        if model['type'] == 'directory':
+            logging.error('Item to save is a directory')
+            return self._save_directory(path)
+        else:
+            logging.error('Item to save is not a directory')
+            return self._save_item(path, model)
+
+    def _save_directory(self, path):
+        """
+        Save directory
+
+        Parameters
+        ---------
+        path: string
+            Directory path to save
+        """
+        logging.error("Saving directory for path {}".format(path))
+        url = '{}/directories?path={}'.format(self.server, path)
+        r = requests.post(url)
+        folder = r.json()
+        folder['content'] = None
+        folder['format'] = None
+        return folder
+
+    def _save_item(self, path, model):
+        """
+        Save item. It can be a file or  a notebook. If item already exists, update it.
+
+        Parameters
+        ----------
+        path: string
+            Path item to update
+
+        model: json
+            New object
+        """
         url = '{}/files?path={}'.format(self.server, path)
         r = None
         if self.file_exists(path):
@@ -158,5 +167,45 @@ class Workspace:
         item = r.json()
         item['content'] = None
         item['format'] = None
+        return item
+
+    def is_type(self, path, type):
+        """
+        Check path type
+
+        Parameters
+        ---------
+        path: string
+            Item path to check
+
+        type: string
+            Type to check. It can be `notebook`, `folder` or `file`
+        """
+        url = '{}/type?path={}&type={}'.format(self.server, path, type)
+        r = requests.get(url)
+        return r.status_code == 200
+
+    def rename(self, old_path, new_path):
+        """
+        Rename old_path to new_path
+
+        Parameters
+        ---------
+        old_path: string
+            Old path that need a rename
+
+        new_path: string
+            Old path gonna be rename to new path
+        """
+        logging.error('Renaming {} to {}'.format(old_path, new_path))
+        url = '{}/files/rename?old_path={}&new_path={}'.format(self.server, old_path, new_path)
+        r = requests.put(url)
+        logging.error('Request status code = {}'.format(r.status_code))
+        logging.error('Rename content is {}'.format(json.dumps(r.json())))
+
+        #Here content should be None
+        item = r.json()
+        item['Content'] = None
+
         return item
 
