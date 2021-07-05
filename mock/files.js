@@ -122,6 +122,9 @@ class Files {
         item.path = `/${newPath}`;
         this.map[item.path] = item;
         delete this.map[oldPath];
+
+        this.versions[item.path] = this.versions[oldPath];
+        delete this.versions[oldPath];
         console.log(item)
         return item;
     }

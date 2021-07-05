@@ -22,7 +22,7 @@ class Workspace:
             'writable': True
         }
 
-    def get_directory(self, path=''):
+    def get_directory(self, path='', content=True):
         """
         Get from remote workspace
 
@@ -30,10 +30,18 @@ class Workspace:
         ----------
         path: string
             Resource path
+
+        content: bool
+            Should return content?
         """
         url = '{}/directories?path={}'.format(self.server, path)
         r = requests.get(url)
-        return r.json()
+        directory = r.json()
+        if content is False:
+            directory['content'] = None
+            directory['format'] = None
+
+        return directory
 
     def get_file(self, path='', content=True):
         """
@@ -206,6 +214,7 @@ class Workspace:
         #Here content should be None
         item = r.json()
         item['Content'] = None
+        item['format'] = None
 
         return item
 

@@ -112,23 +112,23 @@ class WorkspaceContentsManager(ContentsManager):
         logging.error("Type = {}".format(type))
         logging.error("Format = {}".format(format))
 
-        if type is 'file':
+        if self.cm.is_type(path, 'file'):
             return self.cm.get_file(path, content)
 
-        if type is 'notebook':
+        if self.cm.is_type(path, 'notebook'):
             return self.cm.get_notebook(path, content)
 
-        if type is 'directory':
-            return self.cm.get_directory(path)
+        if self.cm.is_type(path, 'directory'):
+            return self.cm.get_directory(path, content)
 
         # In this case. Type is none. First check the type
-        types = ['directory', 'file', 'notebook']
-        logging.error("Type is None. Checking type in remote")
-        for type in types:
-            logging.error("Checking type {} for path {}".format(type, path))
-            if self.cm.is_type(path, type):
-                logging.error("Path {} is of type {}".format(path, type))
-                return self.get(path, content, type, format)
+        # types = ['directory', 'file', 'notebook']
+        # logging.error("Type is None. Checking type in remote")
+        # for type in types:
+        #     logging.error("Checking type {} for path {}".format(type, path))
+        #     if self.cm.is_type(path, type):
+        #         logging.error("Path {} is of type {}".format(path, type))
+        #         return self.get(path, content, type, format)
 
         raise web.HTTPError(404, '{} does not exists in any types'.format(path))
 

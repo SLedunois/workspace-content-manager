@@ -9,11 +9,18 @@ const directories = new Directories(); 7
 app.use(bodyParser.json());
 
 app.get("/directories", (req, res) => {
-    const path = req.query.path;
+    let path = req.query.path;
     console.log(`Looking for directory ${path} content`);
     if (path.trim() === '') {
         res.json(directories.data);
-    } else if (directories.content.exists(path)) {
+        return;
+    }
+
+    if (!path.startsWith('/')) {
+        path = `/${path}`;
+    }
+
+    if (directories.content.exists(path)) {
         res.json(directories.content.file(path));
     } else {
         console.log(`Directory content for path ${path} not found`);
